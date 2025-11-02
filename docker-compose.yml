@@ -8,21 +8,18 @@ services:
       POSTGRES_DB: postgres
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: postgres
-      PGDATA: /var/lib/postgresql/data/pgdata
     ports:
       - "5432:5432"
     volumes:
-      - primary_data:/var/lib/postgresql/data
+      - ${PWD}/primary/pgdata:/var/lib/postgresql/data
+      - ${PWD}/primary/config:/config
+      - ${PWD}/primary/archive:/mnt/server/archive
       - ./backups:/backups
+      - ./wal_archive:/wal_archiv
+      
     networks:
       - postgres_network
-    command: |
-      postgres 
-      -c wal_level=replica
-      -c max_wal_senders=10
-      -c max_replication_slots=10
-      -c hot_standby=on
-      -c listen_addresses='*'
+    command: -c 'config_file=/config/postgresql.conf'
 
   standby:
     image: postgres:15
@@ -31,17 +28,16 @@ services:
       POSTGRES_DB: postgres
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: postgres
-      PGDATA: /var/lib/postgresql/data/pgdata
     ports:
       - "5433:5432"
     volumes:
-      - standby_data:/var/lib/postgresql/data
+      - ${PWD}/standby/pgdata:/var/lib/postgresql/data
+      - ${PWD}/standby/config:/config
+      - ${PWD}/standby/archive:/mnt/server/archive
     networks:
       - postgres_network
-    depends_on:
-      - primary
     command: |
-      tail -f /dev/null
+      tail -f /dev/null && -c 'config_file=/config/postgresql.conf'
 
   replica:
     image: postgres:15
@@ -50,17 +46,16 @@ services:
       POSTGRES_DB: postgres
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: postgres
-      PGDATA: /var/lib/postgresql/data/pgdata
     ports:
       - "5434:5432"
     volumes:
-      - replica_data:/var/lib/postgresql/data
+      - ${PWD}/read/pgdata:/var/lib/postgresql/data
+      - ${PWD}/read/config:/config
+      - ${PWD}/read/archive:/mnt/server/archive
     networks:
       - postgres_network
-    depends_on:
-      - primary
     command: |
-      tail -f /dev/null
+      tail -f /dev/null && -c 'config_file=/config/postgresql.conf'
 
 volumes:
   primary_data:
@@ -69,4 +64,4 @@ volumes:
 
 networks:
   postgres_network:
-    driver: bridge
+    driver: bridge 
