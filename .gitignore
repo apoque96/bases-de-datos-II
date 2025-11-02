@@ -4,3 +4,6 @@
 /read/pgdata
 /standby/archive
 /standby/pgdata
+/backups
+./backup.log
+./setup.log

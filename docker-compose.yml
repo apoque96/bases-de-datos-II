@@ -36,8 +36,7 @@ services:
       - ${PWD}/standby/archive:/mnt/server/archive
     networks:
       - postgres_network
-    command: |
-      tail -f /dev/null && -c 'config_file=/config/postgresql.conf'
+    command: -c 'config_file=/config/postgresql.conf'
 
   replica:
     image: postgres:15
@@ -54,8 +53,7 @@ services:
       - ${PWD}/read/archive:/mnt/server/archive
     networks:
       - postgres_network
-    command: |
-      tail -f /dev/null && -c 'config_file=/config/postgresql.conf'
+    command: -c 'config_file=/config/postgresql.conf'
 
 volumes:
   primary_data:
