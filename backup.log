@@ -24,3 +24,30 @@
 [2025-10-20 10:28:51] Backup exitoso: 19.77 KB
 [2025-10-20 10:28:51] Aplicando retencion de 7 dias...
 [2025-10-20 10:28:51] === BACKUP COMPLETADO ===
+[2025-10-21 13:29:58] === INICIANDO BACKUP ===
+[2025-10-21 13:29:58] Verificando conexion a PostgreSQL...
+[2025-10-21 13:29:58] Conexion establecida correctamente
+[2025-10-21 13:29:58] Creando backup: .\backups\full_backup_20251021_132958.sql
+[2025-10-21 13:29:59] Backup exitoso: 19.77 KB
+[2025-10-21 13:29:59] Aplicando retencion de 7 dias...
+[2025-10-21 13:29:59] === BACKUP COMPLETADO ===
+[2025-10-21 16:06:58] === INICIANDO BACKUP ===
+[2025-10-21 16:06:58] Verificando conexion a PostgreSQL...
+[2025-10-21 16:06:58] Conexion establecida correctamente
+[2025-10-21 16:06:58] Creando backup: .\backups\full_backup_20251021_160658.sql
+[2025-10-21 16:06:59] Backup exitoso: 25.08 KB
+[2025-10-21 16:06:59] Aplicando retencion de 7 dias...
+[2025-10-21 16:06:59] === BACKUP COMPLETADO ===
+[2025-10-21 17:14:13] === INICIANDO BACKUP ===
+[2025-10-21 17:14:13] ERROR: El contenedor primary no esta ejecutandose
+[2025-10-21 17:14:13] Estado actual: exited
+[2025-10-21 17:14:13] Intentando iniciar contenedores...
+[2025-10-21 17:14:19] Verificando conexion a PostgreSQL...
+[2025-10-21 17:14:19] ERROR: No se puede conectar a PostgreSQL: Error response from daemon: container 09f2eebfd65f096e50c66441dddac19779465b1b1bf498ccfbeb11dac1aafd5a is not running
+[2025-10-21 17:27:53] === INICIANDO BACKUP ===
+[2025-10-21 17:27:53] Verificando conexion a PostgreSQL...
+[2025-10-21 17:27:54] Conexion establecida correctamente
+[2025-10-21 17:27:54] Creando backup: .\backups\full_backup_20251021_172753.sql
+[2025-10-21 17:27:54] Backup exitoso: 27.54 KB
+[2025-10-21 17:27:54] Aplicando retencion de 7 dias...
+[2025-10-21 17:27:54] === BACKUP COMPLETADO ===
