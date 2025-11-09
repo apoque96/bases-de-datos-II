@@ -1,5 +1,4 @@
 # docker-compose.yml
-version: '3.8'
 services:
   primary:
     image: postgres:15
@@ -11,16 +10,15 @@ services:
     ports:
       - "5432:5432"
     volumes:
-      - ${PWD}/primary/pgdata:/var/lib/postgresql/data
-      - ${PWD}/primary/config:/config
-      - ${PWD}/primary/archive:/mnt/server/archive
+      - ./primary/pgdata:/var/lib/postgresql/data
+      - ./primary/config:/config
+      - ./primary/archive:/mnt/server/archive
       - ./backups:/backups
       - ./wal_archive:/wal_archiv
       
     networks:
       - postgres_network
     command: -c 'config_file=/config/postgresql.conf'
-
   standby:
     image: postgres:15
     container_name: standby
@@ -31,13 +29,12 @@ services:
     ports:
       - "5433:5432"
     volumes:
-      - ${PWD}/standby/pgdata:/var/lib/postgresql/data
-      - ${PWD}/standby/config:/config
-      - ${PWD}/standby/archive:/mnt/server/archive
+      - ./standby/pgdata:/var/lib/postgresql/data
+      - ./standby/config:/config
+      - ./standby/archive:/mnt/server/archive
     networks:
       - postgres_network
     command: -c 'config_file=/config/postgresql.conf'
-
   replica:
     image: postgres:15
     container_name: replica
@@ -48,18 +45,52 @@ services:
     ports:
       - "5434:5432"
     volumes:
-      - ${PWD}/read/pgdata:/var/lib/postgresql/data
-      - ${PWD}/read/config:/config
-      - ${PWD}/read/archive:/mnt/server/archive
+      - ./read/pgdata:/var/lib/postgresql/data
+      - ./read/config:/config
+      - ./read/archive:/mnt/server/archive
     networks:
       - postgres_network
     command: -c 'config_file=/config/postgresql.conf'
-
-volumes:
-  primary_data:
-  standby_data:
-  replica_data:
-
+  mongo-primary:
+    image: mongo:8.2.1
+    container_name: mongo-primary
+    ports:
+      - "27017:27017"
+    volumes:
+      - ./mongo-primary/data:/data/db
+      - ./mongo-primary/config:/data/configdb
+      # - ./mongo-primary/init-scripts:/docker-entrypoint-initdb.d
+    networks:
+      - mongo-replica-set
+    command: ["--replSet", "rs0", "--bind_ip_all", "--port", "27017"]
+    healthcheck:
+      test: echo "try { rs.status() } catch (err) { rs.initiate({_id:'rs0',members:[{_id:0,host:'host.docker.internal:27017',priority:1},{_id:1,host:'host.docker.internal:27018',priority:0.5},{_id:2,host:'host.docker.internal:27019',priority:0.5}]}) }" | mongosh --port 27017 --quiet
+      interval: 5s
+      timeout: 10s
+      retries: 5
+      start_period: 40s
+  mongo-secondary-1:
+    image: mongo:8.2.1
+    container_name: mongo-secondary-1
+    ports:
+      - "27018:27018"
+    volumes:
+      - ./mongo-secondary-1/data:/data/db
+    networks:
+      - mongo-replica-set
+    command: ["--replSet", "rs0", "--bind_ip_all", "--port", "27018"]
+  mongo-secondary-2:
+    image: mongo:8.2.1
+    container_name: mongo-secondary-2
+    ports:
+      - "27019:27019"
+    volumes:
+      - ./mongo-secondary-2/data:/data/db
+    networks:
+      - mongo-replica-set
+    command: ["--replSet", "rs0", "--bind_ip_all", "--port", "27019"]
 networks:
+  mongo-replica-set:
+    driver: bridge
   postgres_network:
     driver: bridge 

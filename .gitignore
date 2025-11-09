@@ -7,3 +7,6 @@
 /backups
 ./backup.log
 ./setup.log
+/mongo-primary
+/mongo-secondary-1
+/mongo-secondary-2
