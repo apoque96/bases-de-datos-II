@@ -1,5 +1,6 @@
 /primary/archive
 /primary/pgdata
+/primary/exports
 /read/archive
 /read/pgdata
 /standby/archive

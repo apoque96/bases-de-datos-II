@@ -15,6 +15,7 @@ services:
       - ./primary/archive:/mnt/server/archive
       - ./backups:/backups
       - ./wal_archive:/wal_archiv
+      - ./primary/exports:/exports
       
     networks:
       - postgres_network
@@ -59,6 +60,7 @@ services:
     volumes:
       - ./mongo-primary/data:/data/db
       - ./mongo-primary/config:/data/configdb
+      - ./mongo-primary/imports:/imports
       # - ./mongo-primary/init-scripts:/docker-entrypoint-initdb.d
     networks:
       - mongo-replica-set
