@@ -55,7 +55,9 @@ services:
 
 
   mongo-primary:
-    image: mongo:8.2.1
+    build:
+      context: .
+      dockerfile: mongo.Dockerfile
     container_name: mongo-primary
     ports:
       - "27017:27017"
@@ -65,10 +67,18 @@ services:
       - ./mongo-primary/imports:/imports
     networks:
       - mongo-replica-set
-    command: ["--replSet", "rs0", "--bind_ip_all", "--port", "27017", "--auth"]
+    command: ["--replSet", "rs0", "--bind_ip_all", "--port", "27017", "--auth", "--keyFile", "/etc/mongo-keyfile/mongodb-keyfile"]
+    healthcheck:
+      test: echo "try { rs.status() } catch (err) { rs.initiate({_id:'rs0',members:[{_id:0,host:'host.docker.internal:27017',priority:1},{_id:1,host:'host.docker.internal:27018',priority:0.5},{_id:2,host:'host.docker.internal:27019',priority:0.5}]}) }" | mongosh --port 27017 --quiet
+      interval: 5s
+      timeout: 10s
+      retries: 5
+      start_period: 40s
 
   mongo-secondary-1:
-    image: mongo:8.2.1
+    build:
+      context: .
+      dockerfile: mongo.Dockerfile
     container_name: mongo-secondary-1
     ports:
       - "27018:27018"
@@ -76,10 +86,12 @@ services:
       - ./mongo-secondary-1/data:/data/db
     networks:
       - mongo-replica-set
-    command: ["--replSet", "rs0", "--bind_ip_all", "--port", "27018", "--auth"]
+    command: ["--replSet", "rs0", "--bind_ip_all", "--port", "27018", "--auth", "--keyFile", "/etc/mongo-keyfile/mongodb-keyfile"]
 
   mongo-secondary-2:
-    image: mongo:8.2.1
+    build:
+      context: .
+      dockerfile: mongo.Dockerfile
     container_name: mongo-secondary-2
     ports:
       - "27019:27019"
@@ -87,7 +99,7 @@ services:
       - ./mongo-secondary-2/data:/data/db
     networks:
       - mongo-replica-set
-    command: ["--replSet", "rs0", "--bind_ip_all", "--port", "27019", "--auth"]
+    command: ["--replSet", "rs0", "--bind_ip_all", "--port", "27019", "--auth", "--keyFile", "/etc/mongo-keyfile/mongodb-keyfile"]
 
 networks:
   mongo-replica-set:
