@@ -1,4 +1,3 @@
-# docker-compose.yml
 services:
   primary:
     image: postgres:15
@@ -16,10 +15,10 @@ services:
       - ./backups:/backups
       - ./wal_archive:/wal_archiv
       - ./primary/exports:/exports
-      
     networks:
       - postgres_network
     command: -c 'config_file=/config/postgresql.conf'
+
   standby:
     image: postgres:15
     container_name: standby
@@ -36,6 +35,7 @@ services:
     networks:
       - postgres_network
     command: -c 'config_file=/config/postgresql.conf'
+
   replica:
     image: postgres:15
     container_name: replica
@@ -52,6 +52,8 @@ services:
     networks:
       - postgres_network
     command: -c 'config_file=/config/postgresql.conf'
+
+
   mongo-primary:
     image: mongo:8.2.1
     container_name: mongo-primary
@@ -61,16 +63,10 @@ services:
       - ./mongo-primary/data:/data/db
       - ./mongo-primary/config:/data/configdb
       - ./mongo-primary/imports:/imports
-      # - ./mongo-primary/init-scripts:/docker-entrypoint-initdb.d
     networks:
       - mongo-replica-set
-    command: ["--replSet", "rs0", "--bind_ip_all", "--port", "27017"]
-    healthcheck:
-      test: echo "try { rs.status() } catch (err) { rs.initiate({_id:'rs0',members:[{_id:0,host:'host.docker.internal:27017',priority:1},{_id:1,host:'host.docker.internal:27018',priority:0.5},{_id:2,host:'host.docker.internal:27019',priority:0.5}]}) }" | mongosh --port 27017 --quiet
-      interval: 5s
-      timeout: 10s
-      retries: 5
-      start_period: 40s
+    command: ["--replSet", "rs0", "--bind_ip_all", "--port", "27017", "--auth"]
+
   mongo-secondary-1:
     image: mongo:8.2.1
     container_name: mongo-secondary-1
@@ -80,7 +76,8 @@ services:
       - ./mongo-secondary-1/data:/data/db
     networks:
       - mongo-replica-set
-    command: ["--replSet", "rs0", "--bind_ip_all", "--port", "27018"]
+    command: ["--replSet", "rs0", "--bind_ip_all", "--port", "27018", "--auth"]
+
   mongo-secondary-2:
     image: mongo:8.2.1
     container_name: mongo-secondary-2
@@ -90,9 +87,10 @@ services:
       - ./mongo-secondary-2/data:/data/db
     networks:
       - mongo-replica-set
-    command: ["--replSet", "rs0", "--bind_ip_all", "--port", "27019"]
+    command: ["--replSet", "rs0", "--bind_ip_all", "--port", "27019", "--auth"]
+
 networks:
   mongo-replica-set:
     driver: bridge
   postgres_network:
-    driver: bridge 
+    driver: bridge
